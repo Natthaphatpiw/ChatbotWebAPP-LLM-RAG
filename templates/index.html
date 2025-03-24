@@ -173,61 +173,75 @@
 </div>
 
 <script>
-function sendMessage() {
-    let msg = document.getElementById('msg').value;
-    if(msg.trim() === "") return;
-
-    let chatMessages = document.getElementById('chat-messages');
-
-    // Add user message with styling
-    chatMessages.innerHTML += `
-        <div class="message user-message">
-            <div class="message-content user-content">
-                ${msg}
-            </div>
-            <div class="avatar user-avatar">
-                <i class="fas fa-user"></i>
-            </div>
-        </div>
-    `;
-
-    fetch('/get', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `msg=${encodeURIComponent(msg)}`
-    })
-    .then(response => response.text())
-    .then(answer => {
-        // Add bot message with styling
+    function sendMessage() {
+        let msg = document.getElementById('msg').value;
+        if(msg.trim() === "") return;
+    
+        let chatMessages = document.getElementById('chat-messages');
+    
+        // Add user message
         chatMessages.innerHTML += `
-            <div class="message bot-message">
+            <div class="message user-message">
+                <div class="message-content user-content">
+                    ${msg}
+                </div>
+                <div class="avatar user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        `;
+    
+        // Add typing indicator
+        const loadingId = `loading-${Date.now()}`;
+        chatMessages.innerHTML += `
+            <div class="message bot-message" id="${loadingId}">
                 <div class="avatar bot-avatar">
                     <i class="fas fa-robot"></i>
                 </div>
                 <div class="message-content bot-content">
-                    ${answer}
+                    <i>Typing...</i>
                 </div>
             </div>
         `;
-        
         document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
-    });
-
-    document.getElementById('msg').value = "";
-}
-
-// Allow pressing Enter to send message
-document.getElementById('msg').addEventListener('keypress', function(event) {
-    if (event.key === 'Enter') {
-        sendMessage();
+    
+        fetch('/get', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: `msg=${encodeURIComponent(msg)}`
+        })
+        .then(response => response.text())
+        .then(answer => {
+            // Remove loading message
+            const loadingMsg = document.getElementById(loadingId);
+            if (loadingMsg) loadingMsg.remove();
+    
+            // Add bot reply
+            chatMessages.innerHTML += `
+                <div class="message bot-message">
+                    <div class="avatar bot-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content bot-content">
+                        ${answer}
+                    </div>
+                </div>
+            `;
+            document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
+        });
+    
+        document.getElementById('msg').value = "";
     }
-});
-
-// Close button functionality (just for visual effect, doesn't actually close anything in this example)
-document.querySelector('.close-btn').addEventListener('click', function() {
-    alert('Chat session would close here. Implement actual closing functionality as needed.');
-});
+    
+    // Enter to send
+    document.getElementById('msg').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    });
 </script>
+    
+
 
 </body>
 </html>
