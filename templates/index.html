@@ -1,0 +1,233 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Veterinary Chatbot with RAG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .chatbox {
+            width: 400px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .header {
+            background-color: #4285f4;
+            color: white;
+            padding: 15px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h4 {
+            margin: 0;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .chat-area {
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            border-bottom: 1px solid #eee;
+        }
+        .message {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .user-message {
+            justify-content: flex-end;
+        }
+        .bot-message {
+            justify-content: flex-start;
+        }
+        .message-content {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+        .user-content {
+            background-color: #f1f0f0;
+            color: #333;
+            margin-left: 10px;
+        }
+        .bot-content {
+            background-color: #4285f4;
+            color: white;
+            margin-right: 10px;
+        }
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+        }
+        .user-avatar {
+            background-color: #ffcc00;
+        }
+        .bot-avatar {
+            background-color: #4285f4;
+            color: white;
+        }
+        .input-area {
+            padding: 15px;
+            display: flex;
+            position: relative;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            outline: none;
+        }
+        .input-area button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #4285f4;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .footer {
+            padding: 8px 15px;
+            font-size: 11px;
+            color: #777;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+        }
+        .github-link {
+            color: #666;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .github-link i {
+            margin-right: 5px;
+        }
+        .source-info {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chatbox">
+    <div class="header">
+        <h4>AI Veterinary Chatbot with RAG</h4>
+        <button class="close-btn">×</button>
+    </div>
+    <div class="chat-area" id="chat-area">
+        <div id="chat-messages">
+            <div class="message bot-message">
+                <div class="avatar bot-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content bot-content">
+                    Hi there! How can I assist you today?
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="input-area">
+        <input type="text" id="msg" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <div class="footer">
+        <a href="https://github.com/Natthaphatpiw?tab=repositories" class="github-link" target="_blank">
+            <i class="fab fa-github"></i> Natthaphat
+        </a>
+        <div class="source-info">
+            <div>Source: Common Diseases of Companion Animals, 4th Edition</div>
+            <div>© 2025 Natthaphat | toichatturat@outlook.com</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function sendMessage() {
+    let msg = document.getElementById('msg').value;
+    if(msg.trim() === "") return;
+
+    let chatMessages = document.getElementById('chat-messages');
+
+    // Add user message with styling
+    chatMessages.innerHTML += `
+        <div class="message user-message">
+            <div class="message-content user-content">
+                ${msg}
+            </div>
+            <div class="avatar user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+    `;
+
+    fetch('/get', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `msg=${encodeURIComponent(msg)}`
+    })
+    .then(response => response.text())
+    .then(answer => {
+        // Add bot message with styling
+        chatMessages.innerHTML += `
+            <div class="message bot-message">
+                <div class="avatar bot-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content bot-content">
+                    ${answer}
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
+    });
+
+    document.getElementById('msg').value = "";
+}
+
+// Allow pressing Enter to send message
+document.getElementById('msg').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+// Close button functionality (just for visual effect, doesn't actually close anything in this example)
+document.querySelector('.close-btn').addEventListener('click', function() {
+    alert('Chat session would close here. Implement actual closing functionality as needed.');
+});
+</script>
+
+</body>
+</html>

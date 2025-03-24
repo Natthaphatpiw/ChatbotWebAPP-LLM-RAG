@@ -1,0 +1,9 @@
+__pycache__/
+.env
+venv/
+.env/
+*.pyc
+.idea/
+.vscode/
+llamatoken.txt
+pincone.txt
