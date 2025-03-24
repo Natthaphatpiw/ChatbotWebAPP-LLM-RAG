@@ -85,9 +85,13 @@ def index():
 @app.route("/get", methods=["GET", "POST"])
 def chat():
     msg = request.form["msg"]
-    rag = get_rag_chain()
-    response = rag.invoke({"input": msg})
-    return str(response["answer"])
+    try:
+        rag = get_rag_chain()
+        response = rag.invoke({"input": msg})
+        return str(response["answer"])
+    except Exception as e:
+        print(f"❌ Error: {str(e)}")
+        return "Internal error"
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
