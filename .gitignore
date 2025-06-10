@@ -7,3 +7,5 @@ venv/
 .vscode/
 llamatoken.txt
 pincone.txt
+
+*.pdf

@@ -3,11 +3,11 @@ langchain
 flask
 pypdf
 python-dotenv
-pinecone
-pinecone-client[grpc]
+pinecone-client>=3.0.0,<4.0.0
 langchain-pinecone
 langchain_community
 langchain_openai
-langchain_experimental
+langchain-huggingface
+openai>=1.0.0
 cryptography
 gunicorn

@@ -1,7 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 from src.helper import download_embedding_model
 from langchain_pinecone import PineconeVectorStore
-from langchain_community.llms import HuggingFaceEndpoint
+from langchain_openai import AzureChatOpenAI
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
@@ -15,10 +15,14 @@ app = Flask(__name__)
 load_dotenv()
 
 PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY')
-HUGGINGFACE_API_KEY = os.environ.get('HUGGINGFACE_API_KEY')
+AZURE_OPENAI_API_KEY = os.environ.get('AZURE_OPENAI_API_KEY')
+AZURE_OPENAI_ENDPOINT = os.environ.get('AZURE_OPENAI_ENDPOINT')
+AZURE_OPENAI_API_VERSION = os.environ.get('AZURE_OPENAI_API_VERSION', '2024-02-15-preview')
+AZURE_OPENAI_DEPLOYMENT_NAME = os.environ.get('AZURE_OPENAI_DEPLOYMENT_NAME')
 
 os.environ["PINECONE_API_KEY"] = PINECONE_API_KEY
-os.environ["HUGGINGFACE_API_KEY"] = HUGGINGFACE_API_KEY
+os.environ["AZURE_OPENAI_API_KEY"] = AZURE_OPENAI_API_KEY
+os.environ["AZURE_OPENAI_ENDPOINT"] = AZURE_OPENAI_ENDPOINT
 
 # embedding = download_embedding_model()
 
@@ -54,12 +58,15 @@ def get_rag_chain():
         embedding=embedding
     )
     retriever = docsearch.as_retriever(search_type="similarity", search_kwargs={"k": 3})
-    llm = HuggingFaceEndpoint(
-        repo_id="mistralai/Mistral-7B-Instruct-v0.2",
-        huggingfacehub_api_token=os.environ.get("HUGGINGFACE_API_KEY"),
+    
+    llm = AzureChatOpenAI(
+        azure_endpoint=AZURE_OPENAI_ENDPOINT,
+        azure_deployment=AZURE_OPENAI_DEPLOYMENT_NAME,
+        openai_api_version=AZURE_OPENAI_API_VERSION,
         temperature=0.4,
-        max_new_tokens=500
+        max_tokens=500
     )
+    
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
         ("human", "{input}")

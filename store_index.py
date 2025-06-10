@@ -7,9 +7,9 @@ import os
 
 load_dotenv()
 PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY')
-HUGGINGFACE_API_KEY = os.environ.get('HUGGINGFACE_API_KEY')
+# HUGGINGFACE_API_KEY = os.environ.get('HUGGINGFACE_API_KEY')
 os.environ["PINECONE_API_KEY"] = PINECONE_API_KEY
-os.environ["HUGGINGFACE_API_KEY"] = HUGGINGFACE_API_KEY
+# os.environ["HUGGINGFACE_API_KEY"] = HUGGINGFACE_API_KEY
 
 extrac_data = load_pdf_file(data= 'Data/')
 text_chunk = text_split(extrac_data)
