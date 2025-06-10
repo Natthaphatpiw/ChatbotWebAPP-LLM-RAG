@@ -1,6 +1,8 @@
 from flask import Flask, render_template, jsonify, request
 from src.helper import download_embedding_model
-from langchain_pinecone import PineconeVectorStore
+# ✅ แบบใหม่ (ใช้ได้กับ langchain>=0.1.0 และ langchain-community)
+from langchain_community.vectorstores import Pinecone as PineconeVectorStore
+
 from langchain_openai import AzureChatOpenAI
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
